@@ -19,3 +19,4 @@ class HistoryConfig(AppConfig):
         # TODO: connect all signals to be connected here!
         # TODO: test for duplicated signals
         pass
+
