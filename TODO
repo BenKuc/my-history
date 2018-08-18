@@ -1,2 +1,3 @@
 1) merge history_models and original_model to base-directory
-2)
+2) implement history models
+3) implement simple history models -> only status: active/deleted + pk-attribute + pk-field
