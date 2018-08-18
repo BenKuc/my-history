@@ -121,8 +121,17 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+
+# TODO: documentation: put my-history into installed aps
+
 # my-history settings
 MY_HISTORY = {
+    'APP_NAME': 'my_history',
+
     'DB_ALIAS': 'default',
     # TODO: configuration option which receivers to use for specific signals?
+
+    # XXX: make this better in terms of available variables
+    'MODEL_NAMING_SCHEME': 'History{model}',
+    'DB_TABLE_NAMING_SCHEME': 'history_{model}',
 }
