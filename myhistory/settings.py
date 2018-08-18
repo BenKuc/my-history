@@ -134,4 +134,7 @@ MY_HISTORY = {
     # XXX: make this better in terms of available variables
     'MODEL_NAMING_SCHEME': 'History{model}',
     'DB_TABLE_NAMING_SCHEME': 'history_{model}',
+
+    # extra_fields to be tracked on every model
+    'GLOBAL_EXTRA_FIELDS': [],
 }
