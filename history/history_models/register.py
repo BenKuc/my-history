@@ -1,4 +1,4 @@
-from collections import namedtuple, OrderedDict
+from collections import namedtuple
 
 from django.conf import settings
 from django.db import models
@@ -51,71 +51,40 @@ def history(fields='__all__', track_diffs=False, extra_fields=None):
     return set_history_on_model
 
 
-class HistoryDispatcher:
-    # key: model, value: list of other models the history of key depends on
-    dependencies = {}
-    # key: number of dependencies, value: list of models with that number
-    buckets = OrderedDict()
+# TODO: get fields and related-history-models. ->
+    #  TODO: also connect sub-stuff to class_prepared!
+    # TODO: get history-name by scheme of settings.
+    # TODO: Meta-class -> db_table name! and app_label!.
+    # TODO: custom managers on cls!
+def create_history_on_models():
+    # TODO: this needs to be sorted though -> so you can use all of them
+    # TODO: do this by the hand
+    for model_cls, config in TRACKED_MODELS.items():
+        opts = model_cls._meta
 
-    def __init__(self):
-        pass
-
-    def __init__(self):
-        # TODO: this is unnecessary: if it is in tracked_models then ok,
-        #       otherwise set foreignkey to basic history model!
-        # TODO: implement algorithm of dependency check -> django check
-        for model_cls, config in TRACKED_MODELS.items():
-            self.dependencies[model_cls] = self.get_dependencies(model_cls)
-
-    def get_dependencies(self, model_cls):
-        # TODO: this is flat dependencies!!!
-        if model_cls not in self.dependencies:
-            dependencies = set()
-            self.dependencies[model_cls] = dependencies
-        return self.dependencies[model_cls]
-
-
-# TODO: put this to HistoryDispatcher
-class HistoryCreator:
-
-    def __init__(self, model_class, **kwargs):
-        import pdb; pdb.set_trace()
-        self.model_cls = model_class
-        self.config = TRACKED_MODELS[model_class]
-
-        dependencies = self.get_dependencies()
-        left_dependencies = dependencies.difference(self.READY_MODELS)
-
-        if left_dependencies:
-            for model in left_dependencies:
-                # TODO: register and then do it directly???
+        # 1) FK and OneToOne
+        for f in opts.fields:
+            if f.is_relation:
                 pass
-        else:
+            else:
+                pass
+
+        # 2) Many-to-Many
+        for m2m in opts.many_to_many:
             pass
 
-        # TODO: maybe get this another way
-        relations = [f for f in model_class._meta.get_fields() if f.is_relation]
-        for rel in relations:
-            # TODO: for reverse relations: reverse dependecy
-            rel_model = rel.related_model
-            # TODO: what to do with models that are not registered? ->
-            # simple history -> register simple history
-            # (generic-fk to the model instance)
-            # class_prepared.connect(receiver=cre)
+        # 3) One-To-Many (is this necessary??) -> yes, setting it up +
+        #    reverse-relations and reverse one-to-one?
+        for rel in opts.related_objects:
+            pass
 
-        # register related_models recursively -> NO! check
 
-        # TODO: get fields and related-history-models. ->
-        #  TODO: also connect sub-stuff to class_prepared!
-        # TODO: get history-name by scheme of settings.
-        # TODO: Meta-class -> db_table name! and app_label!.
-        # TODO: custom managers on cls!
+def get_history_fields():
+    pass
 
-    def register_simple_history(self):
-        pass
 
-    def register_history(self):
-        pass
+def get_meta_options():
+    pass
 
 
 def get_history_model_name(model):
