@@ -1,8 +1,7 @@
-from collections import namedtuple, deque
+from collections import namedtuple, OrderedDict
 
 from django.conf import settings
 from django.db import models
-from django.db.models.signals import class_prepared
 
 # TODO: move these to constants
 # TODO: more information by model-cls and so on
@@ -32,21 +31,18 @@ def history(fields='__all__', track_diffs=False, extra_fields=None):
         fields = []
     assert isinstance(fields, (list, tuple)), ERROR_TYPE_FIELDS
 
-    # TODO: inspect those + add global_extra_fields
+    # TODO: inspect those + add global_extra_fields -> django-checks?
     if extra_fields:
         pass
 
     def set_history_on_model(model):
-        assert isinstance(model, models.Model), ERROR_TYPE_MODEL
-
+        assert issubclass(model, models.Model), ERROR_TYPE_MODEL
         if model not in TRACKED_MODELS:
             TRACKED_MODELS[model] = HistoryConfig(
-                fields_names=fields,
+                field_names=fields,
                 extra_fields=extra_fields,
                 track_diffs=track_diffs,
             )
-            # TODO: does it work with class given? -> should call __init__
-            class_prepared.connect(receiver=HistoryCreator, sender=model)
         # TODO: set history managers and set history on model-objects
         # TODO: wrap methods that need to send a signal
         #       (QuerySet.update/bulk_create)
@@ -55,27 +51,35 @@ def history(fields='__all__', track_diffs=False, extra_fields=None):
     return set_history_on_model
 
 
-# TODO: this just gets models to be registered for history and collecting
-#       class_prepared signals! -> History Creator should not be connected, it just creates!
 class HistoryDispatcher:
-    READY_MODELS = set()
-    DEPENDENCIES = {}
+    # key: model, value: list of other models the history of key depends on
+    dependencies = {}
+    # key: number of dependencies, value: list of models with that number
+    buckets = OrderedDict()
 
-    def __init__(self, model_cls):
-        self.model_cls = model_cls
+    def __init__(self):
+        pass
 
-        if self.model_cls in self.DEPENDENCIES:
-            dependencies = None
+    def __init__(self):
+        # TODO: this is unnecessary: if it is in tracked_models then ok,
+        #       otherwise set foreignkey to basic history model!
+        # TODO: implement algorithm of dependency check -> django check
+        for model_cls, config in TRACKED_MODELS.items():
+            self.dependencies[model_cls] = self.get_dependencies(model_cls)
+
+    def get_dependencies(self, model_cls):
+        # TODO: this is flat dependencies!!!
+        if model_cls not in self.dependencies:
+            dependencies = set()
+            self.dependencies[model_cls] = dependencies
+        return self.dependencies[model_cls]
 
 
+# TODO: put this to HistoryDispatcher
 class HistoryCreator:
-    # TODO: implement the algorithm to do this all right
-    READY_MODELS = set()
-    # TODO: is this necessary? -> actually not -> just register recursively by class_prepared!
-    QUEUE = deque()
-    DEPENDENCIES = {}
 
-    def __init__(self, model_class):
+    def __init__(self, model_class, **kwargs):
+        import pdb; pdb.set_trace()
         self.model_cls = model_class
         self.config = TRACKED_MODELS[model_class]
 
@@ -94,22 +98,18 @@ class HistoryCreator:
         for rel in relations:
             # TODO: for reverse relations: reverse dependecy
             rel_model = rel.related_model
-            # TODO: what to do with models that are not registered? -> simple history -> register simple history (generic-fk to the model instance)
+            # TODO: what to do with models that are not registered? ->
+            # simple history -> register simple history
+            # (generic-fk to the model instance)
             # class_prepared.connect(receiver=cre)
 
         # register related_models recursively -> NO! check
 
-        # TODO: get fields and related-history-models. -> # TODO: also connect sub-stuff to class_prepared!
+        # TODO: get fields and related-history-models. ->
+        #  TODO: also connect sub-stuff to class_prepared!
         # TODO: get history-name by scheme of settings.
         # TODO: Meta-class -> db_table name! and app_label!.
         # TODO: custom managers on cls!
-
-    def get_dependencies(self):
-        # TODO: this is flat dependencies!!!
-        if self.model_cls not in self.DEPENDENCIES:
-            dependencies = set()
-            self.DEPENDENCIES[self.model_cls] = dependencies
-        return self.DEPENDENCIES[self.model_cls]
 
     def register_simple_history(self):
         pass
