@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'test_app',
     'history',
 ]
 
@@ -122,16 +123,23 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 
-# TODO: documentation: put my-history into installed aps
+# TODO: documentation: put my-history into installed aps +
+#       put it after all apps that require it!
 
 # my-history settings
 MY_HISTORY = {
+    # TODO: this does not work, because it must the app's module name ->
+    #       pip install option
     'APP_NAME': 'my_history',
+    'VERBOSE_APP_NAME': 'History',
 
     'DB_ALIAS': 'default',
     # TODO: configuration option which receivers to use for specific signals?
 
     # XXX: make this better in terms of available variables
+    # TODO: what about renaming this? -> then a new model is created and the old
+    #       one is not tracked -> so you can choose it, but just initially?
+    #       (how to do that) -> or support model-renaming? -> migration?!
     'MODEL_NAMING_SCHEME': 'History{model}',
     'DB_TABLE_NAMING_SCHEME': 'history_{model}',
 
