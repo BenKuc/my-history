@@ -1,11 +1,9 @@
 from django.apps import AppConfig
 from django.conf import settings
-from django.db.models.signals import post_save
 
 # from ..receivers import save_receiver
-from django.apps.registry import apps
 
-from .history_models.register import create_history_on_models
+from history.models.register import create_history_on_models
 
 
 class HistoryConfig(AppConfig):
