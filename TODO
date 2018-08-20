@@ -1,3 +1,9 @@
-1) merge history_models and original_model to base-directory
-2) implement history models
-3) implement simple history models -> only status: active/deleted + pk-attribute + pk-field
+A) project
+    1) change structure: history_models
+B) apps.py
+    1) configuration of name and verbose_name
+    2) ready(): connect receivers to the signals
+C) history models
+    1) Simple events and references
+    2) base for more complex events
+    3) signals B) 2)
