@@ -99,4 +99,4 @@ class HistoryMixin:
 
     objects = ModelQuerySet.as_manager()
     # TODO: set this as an attribute later on after class is processed already
-    history = HistoryQuerySet.as_manager()
+    history_objects = HistoryQuerySet.as_manager()
