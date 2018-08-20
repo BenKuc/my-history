@@ -38,9 +38,10 @@ def history(fields='__all__', track_diffs=False, extra_fields=None):
                 extra_fields=extra_fields,
                 track_diffs=track_diffs,
             )
-        # TODO: set history managers and set history on model-objects
+        # TODO: set history manager
+        # TODO: set GenericRelation to history!
         # TODO: wrap methods that need to send a signal
-        #       (QuerySet.update/bulk_create)
+        #        -> (QuerySet.update/bulk_create)
         return model
 
     return set_history_on_model
@@ -52,7 +53,6 @@ def create_history_on_models():
         creator.create_history()
 
 
-# TODO: custom managers on cls!
 class HistoryCreator:
 
     def __init__(self, model_cls, config):

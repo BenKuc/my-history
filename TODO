@@ -3,7 +3,9 @@ A) project
 B) apps.py
     1) configuration of name and verbose_name
     2) ready(): connect receivers to the signals
-C) history models
+C) register.py
+    1) write custom managers and wrapped methods for sending signals
+D) history models
     1) Simple events and references
     2) base for more complex events
     3) signals B) 2)
