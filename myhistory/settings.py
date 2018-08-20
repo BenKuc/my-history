@@ -126,6 +126,9 @@ STATIC_URL = '/static/'
 # TODO: documentation: put my-history into installed aps +
 #       put it after all apps that require it!
 
+# TODO: maybe move this ti settings_history? or move settings_history into
+#       settings
+
 # my-history settings
 MY_HISTORY = {
     # TODO: this does not work, because it must the app's module name ->
@@ -143,6 +146,9 @@ MY_HISTORY = {
     'MODEL_NAMING_SCHEME': 'History{model}',
     'DB_TABLE_NAMING_SCHEME': 'history_{model}',
 
-    # extra_fields to be tracked on every model
+    # extra_fields to be tracked on every model?
     'GLOBAL_EXTRA_FIELDS': [],
+
+    'OBJECT_HISTORY_NAME': 'history',
+    'MODEL_HISTORY_NAME': 'history_objects',
 }
