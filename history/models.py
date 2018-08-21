@@ -43,21 +43,36 @@ class ObjectHistory(models.Model):
     # TODO: set this field dynamically
     object_pk = models.PositiveIntegerField()
     content_type = models.ForeignKey(ContentType)
+    history_id = None
 
     class Meta:
         # TODO: could be that original pk is re-given to a model -> problem
         unique_together = ('object_pk', 'content_type', )
 
 
-class Event(models.Model):
+class ManagerEvent(models.Model):
+    pass
+
+
+class ObjectEvent(models.Model):
+    super_event = models.OneToOneField(ManagerEvent)
     # TODO: related_query_name?
-    central = models.ForeignKey(ObjectHistory, related_name='events')
+    object_history = models.ForeignKey(ObjectHistory, related_name='events')
     history_date = ''
     type = ['UPDATE', 'CREATE', 'BULK_CREATE', 'BULK_UPDATE', ]
+    # TODO: maybe wrap all create/update methods on queryset
+    #       to get accurate all types
+    trigger = ['save', 'bulk_create', 'bulk_update']  # TODO: move to ManagerEvent
 
-    # TODO: check constraints for before and after
+    def __str__(self):
+        return '{type}-event triggered by '
+
+    # TODO: order_by history_date!
 
 
+# TODO: check constraints for before and after
+# TODO: maybe remove this in favor of ObjectEvent -> type is a computed value by before and after -> get control over setattr by type
+# TODO: do check constraints that prevent saving before/after when the type is create/update -> sql
 class Creation(Event):
     after = models.ForeignKey('history.PseudoHistoryModel', related_name='previous_event')
 
@@ -72,6 +87,9 @@ class Deletion(Event):
 
 
 # TODO: write base_class for this
+# TODO: o2o to this model by event
+# TODO: o2o-extension by multi-table-inheritance from this model to the actual
+#       history_model -> this is a base-class: HistoryModel
 class PseudoHistoryModel(models.Model):
 
     @property
