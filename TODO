@@ -1,6 +1,7 @@
 A) project
     1) change structure: history needs to be skipped later
     2) add everything to be imported by others to __init__
+    3) rename app -> iTrack/keep-track
 B) apps.py
     1) configuration of name and verbose_name
     2) ready(): connect receivers to the signals
