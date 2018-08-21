@@ -3,6 +3,10 @@ from django.db.models import Model as DjangoModel
 
 # TODO: diff classes -> same as model but with old and new on field and field/relation events
 
+__all__ = [
+    'Diff',
+]
+
 
 # TODO: this whole code must be thought through -> what is to be displayed by diffs on relations and so on?
 class Diff(DjangoModel):

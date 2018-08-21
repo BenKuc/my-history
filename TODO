@@ -9,3 +9,5 @@ D) history models
     1) Simple events and references
     2) base for more complex events
     3) signals B) 2)
+E) no history
+    1) decorator/context-manager to skip history

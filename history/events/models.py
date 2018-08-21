@@ -1,6 +1,10 @@
 from django.db.models import Model as DjangoModel
 # TODO: create a new app in which all this code lives! -> also to allow for custom migrations (data-migrations)
 
+__all__ = [
+    'Event', 'Update', 'Creation', 'Deletion',
+]
+
 
 class Event(DjangoModel):
     event_id = None

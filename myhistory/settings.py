@@ -156,4 +156,7 @@ MY_HISTORY = {
 
     'OBJECT_HISTORY_NAME': 'history',
     'MODEL_HISTORY_NAME': 'history_objects',
+
+    # TODO: If None: always do history; else: think of how to implement this
+    'HANDLING_SIGN': None,
 }

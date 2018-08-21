@@ -2,16 +2,17 @@ from collections import namedtuple
 import inspect
 
 from django.conf import settings
-from  django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 
 from myhistory.settings_history import GLOBAL_TRACK_FIELDS
 from .constants import ERROR_MESSAGES
-from .models import HistoryQuerySet, ModelQuerySet, GenericRelation
+from .managers import HistoryQuerySet, ModelQuerySet
 
 
 HistoryConfig = namedtuple(
     typename='HistoryConfig',
+    # TODO: change this
     field_names='field_names extra_fields track_diffs',
 )
 
@@ -29,12 +30,14 @@ def history(fields='__all__', track_diffs=False, extra_fields=None):
                          (name: str, field: django.db.models.Field,
                           val: method or value)
     """
-
+    import pdb; pdb.set_trace()
     if fields == '__all__':
         fields = []
     assert isinstance(fields, (list, tuple)), ERROR_MESSAGES['TYPE_FIELDS']
 
-    extra = extra_fields + GLOBAL_TRACK_FIELDS
+    # TODO: add to fields
+    # extra = extra_fields + GLOBAL_TRACK_FIELDS
+    extra = []
     for _, field, method in extra.copy():
         if not isinstance(field, models.Field):
             # TODO: django-check as error -> for not valid fields
@@ -46,6 +49,7 @@ def history(fields='__all__', track_diffs=False, extra_fields=None):
         assert sig.parameters['request'].kind == inspect.Parameter.POSITIONAL_ONLY, ""
 
     def set_history_on_model(model):
+        import pdb; pdb.set_trace()
         assert issubclass(model, models.Model), ERROR_MESSAGES['TYPE_MODEL']
         if model not in TRACKED_MODELS:
             TRACKED_MODELS[model] = HistoryConfig(
