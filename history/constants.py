@@ -1,11 +1,9 @@
-from collections import namedtuple
-
 DEFAULT_ITERABLES = (list, tuple, set, )
 EXTRA_FIELDS_SIGNATURE = {'instance', ''}
 
 # TODO: more information by model-cls and so on
-# TODO: make a class out of it that sets variable automatically?
-# TODO: better replace by django-checks
+#       -> restructure code from __init__ again
+# TODO: partially replace by django-checks
 
 HISTORY_ERROR_MESSAGES = {
     'DEFAULT_ITERABLES': "Attribute {name} must an instance of one of the "

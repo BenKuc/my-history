@@ -15,12 +15,14 @@ from .constants import (
 TRACKED_MODELS = set()
 
 
+# TODO: move this somewhere else-> validation
 def assert_iterable(name, obj):
     base_msg = HISTORY_ERROR_MESSAGES['DEFAULT_ITERABLES']
     msg = base_msg.format(name, DEFAULT_ITERABLES)
     assert isinstance(obj, DEFAULT_ITERABLES), msg
 
 
+# TODO: move this somewhere else-> validation
 def assert_correct_three_tuple(name, field, value):
     errors = []
     if not isinstance(name, str):
@@ -35,11 +37,13 @@ def assert_correct_three_tuple(name, field, value):
     return errors
 
 
+# TODO: move this somewhere else -> general/common/settings_extraction?
 def get_history_name(model):
     scheme = settings.MY_HISTORY.MODEL_NAMING_SCHEME
     return scheme.format(name=model.__name__)
 
 
+# TODO: move this somewhere else -> validation
 def assert_three_tuple_iterable(name, obj):
     assert_iterable(name, obj)
 
@@ -121,6 +125,7 @@ class History:
             ),
         )
 
+    # TODO: on called sub-methods think carefully about implemented db-structure
     def create_history_model(self):
         """
         Returns:
