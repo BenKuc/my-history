@@ -71,9 +71,6 @@ class PseudoHistoryModel(models.Model):
         return e.after if hasattr(e, 'after') else None
 
 
-
-
-
 class HistoryMixin:
     # TODO:
     # this is the reverse field

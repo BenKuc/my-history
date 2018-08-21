@@ -5,9 +5,8 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 
-from myhistory.settings_history import GLOBAL_TRACK_FIELDS
 from .constants import ERROR_MESSAGES
-from .managers import HistoryQuerySet, ModelQuerySet
+from history.managers import HistoryQuerySet, ModelQuerySet
 
 
 HistoryConfig = namedtuple(
@@ -30,7 +29,7 @@ def history(fields='__all__', track_diffs=False, extra_fields=None):
                          (name: str, field: django.db.models.Field,
                           val: method or value)
     """
-    import pdb; pdb.set_trace()
+
     if fields == '__all__':
         fields = []
     assert isinstance(fields, (list, tuple)), ERROR_MESSAGES['TYPE_FIELDS']
@@ -76,12 +75,6 @@ def history(fields='__all__', track_diffs=False, extra_fields=None):
         return model
 
     return set_history_on_model
-
-
-def create_history_on_models():
-    for model_cls, config in TRACKED_MODELS.items():
-        creator = HistoryCreator(model_cls, config)
-        creator.create_history()
 
 
 class HistoryCreator:
