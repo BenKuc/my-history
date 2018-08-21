@@ -154,7 +154,6 @@ MY_HISTORY = {
     #       global_extra_fields
     'GLOBAL_EXTRA_FIELDS': [],
 
-    'OBJECT_HISTORY_NAME': 'history',
     'MODEL_HISTORY_NAME': 'history_objects',
 
     # TODO: If None: always do history; else: think of how to implement this
