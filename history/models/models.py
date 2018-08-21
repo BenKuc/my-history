@@ -9,6 +9,7 @@ from history.utils.bulk_create import bulk_create as mt_bulk
 class SimpleObjectReference(models.Model):
     model = models.ForeignKey(ContentType, on_delete=models.CASCADE)
 
+    # TODO: make this a manager
     @property
     def get_object(self):
         try:
