@@ -129,6 +129,9 @@ STATIC_URL = '/static/'
 # TODO: maybe move this ti settings_history? or move settings_history into
 #       settings
 
+# TODO: make a settings tracking and custom migrations for renaming and so on
+#       -> db-table!
+
 # my-history settings
 MY_HISTORY = {
     # TODO: this does not work, because it must the app's module name ->
@@ -147,6 +150,8 @@ MY_HISTORY = {
     'DB_TABLE_NAMING_SCHEME': 'history_{model}',
 
     # extra_fields to be tracked on every model?
+    # TODO: import this from other settings-file -> also setting: path to
+    #       global_extra_fields
     'GLOBAL_EXTRA_FIELDS': [],
 
     'OBJECT_HISTORY_NAME': 'history',
