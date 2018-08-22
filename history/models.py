@@ -1,9 +1,81 @@
 from django.db import models
-from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-# TODO: import all models here
+
+# import all models into this as django will only recognize them in the
+# specified models module.
 from .diffs.models import *
 from .events import *
+
+
+# XXX: pk and (model, id, duplication) are kinda duplicated data, but since
+#      django does not support composed pks, it is okay.
+class ObjectHistory(models.Model):
+    composed_pk = models.CharField(
+        max_length=255, primary_key=True, unique=True,
+    )
+    id = models.CharField(max_length=255)
+    model = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    history_object = GenericForeignKey(
+        ct_field='model', fk_field='id',
+    )
+    duplication = models.PositiveSmallIntegerField()
+
+    class Meta:
+        unique_together = ('object_pk', 'content_type', 'history_id', )
+
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        qs = ObjectHistory.objects.filter(id=self.id)
+        self.duplication = qs.count()
+        if self._state.adding:
+            self.duplication += 1
+        self.composed_pk = '{}-{}-{}'.format(
+            self.model.__name__, self.id, self.duplication,
+        )
+        super().save(force_insert, force_update, using, update_fields)
+
+    # TODO: implementation of these methods are dependent on events! ->
+    #       also look at HistoryBaseModel
+
+    def all(self):
+        pass
+
+    def updates(self):
+        return
+
+    def events(self):
+        pass
+
+    def creation(self):
+        pass
+
+    def deletion(self):
+        pass
+
+    def manager_events(self):
+        pass
+
+    def history_events(self):
+        pass
+
+
+# TODO: o2o to this model by event
+# TODO: o2o-extension by multi-table-inheritance from this model to the actual
+#       history_model -> this is a base-class: HistoryModel
+class HistoryBaseModel(models.Model):
+    # TODO: you can do the django trick here with type:
+    # (deletion, upadte, creation)
+
+    @property
+    def previous(self):
+        e = self.previous_event
+        return e.before if hasattr(e, 'before') else None
+
+    @property
+    def next(self):
+        e = self.next_event
+        return e.after if hasattr(e, 'after') else None
 
 
 # TODO: do we really want this?
@@ -16,7 +88,7 @@ class TrackTracker(models.Model):
 class SimpleObjectReference(models.Model):
     model = models.ForeignKey('contenttypes.ContentType', on_delete=models.CASCADE)
 
-    # TODO: make this a manager
+    # TODO: make this a manager?
     @property
     def get_object(self):
         try:
@@ -38,46 +110,3 @@ class SimpleObjectReferenceById(SimpleObjectReference):
 class SimpleObjectReferenceByString(SimpleObjectReference):
     # TODO: also history_id
     object_pk = models.CharField(max_length=255)
-
-
-# TODO: maybe make this a history-descriptor, but move attributes to a
-#       BaseClass for event
-# TODO: also put special methods on this descriptor (like updates, events...)
-# this is where all the history of an object is gathered together
-class ObjectHistory(models.Model):
-    # TODO: set this field dynamically -> how to handle different pk-fields
-    #       -> assume that int and str will be enough actually
-    object_pk = models.PositiveIntegerField()
-    content_type = models.ForeignKey(ContentType)
-    # TODO: overwrite AutoField and set as pk
-    history_id = None  # TODO: this should be a field like: if the
-                       # object_pk was duplicated in the original table
-                       # this is the number of duplication in order!
-
-    class Meta:
-        unique_together = ('object_pk', 'content_type', 'history_id', )
-
-    # TODO: this is for convenience: obj.history.<manager_method>
-    def __getattribute__(self, item):
-        try:
-            # TODO: self.manager
-            return getattr(self, item)
-        except AttributeError:
-            return super().__getattribute__(item)
-
-
-# TODO: write base_class for this
-# TODO: o2o to this model by event
-# TODO: o2o-extension by multi-table-inheritance from this model to the actual
-#       history_model -> this is a base-class: HistoryModel
-class PseudoHistoryModel(models.Model):
-
-    @property
-    def previous(self):
-        e = self.previous_event
-        return e.before if hasattr(e, 'before') else None
-
-    @property
-    def next(self):
-        e = self.next_event
-        return e.after if hasattr(e, 'after') else None
