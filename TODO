@@ -13,3 +13,4 @@ D) history models
     3) signals B) 2)
 E) no history
     1) decorator/context-manager to skip history
+    2) also no-history option for save, bulk,update by keyword-arg
