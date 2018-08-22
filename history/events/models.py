@@ -1,11 +1,14 @@
 from django.db import models
 
+from ..diffs.models import Diff
+
 
 __all__ = [
     'ObjectEvent',
 ]
 
 
+# TODO: initial migration where checks are added -> maybe django-constraints!
 # TODO: consistency: same (content)type + same id -> CHECK-constraint
 # TODO: create indexes in history_date and ...
 # TODO: next and previous
@@ -18,7 +21,6 @@ class ObjectEvent(models.Model):
     An instance of this always belongs to a ManagerEvent-instance.
     """
     trigger = models.CharField(
-        # TODO: add all operations in Atomic-history?
         choices=(
             ('QB', 'queryset: bulk_create'),
             ('QU', 'queryset: update'),
@@ -41,7 +43,7 @@ class ObjectEvent(models.Model):
     # TODO: this must be adjusted to differences-boolean
     #       -> field is added if True, otherwise not
     # TODO: if true -> consistency checks
-    diff = None
+    diff = models.OneToOneField(Diff, on_delete=models.CASCADE, null=True)
     object_history = models.ForeignKey(
         'history.ObjectHistory', related_name='events', on_delete=models.CASCADE,
     )
@@ -61,23 +63,9 @@ class ObjectEvent(models.Model):
     )
 
     class Meta:
-        # TODO: order_by history_date!
-        order_by = ()
+        order_by = ['+history_data']
 
     def __str__(self):
-        return '{type}-event triggered by '
-
-    # TODO: do we really need this here?
-    @property
-    def history_id(self):
-        return self.object_history.model
-
-    # TODO: do we really need this here?
-    @property
-    def id(self):
-        return self.object_history.model
-
-    # TODO: do we really need this here?
-    @property
-    def model(self):
-        return self.object_history.co
+        return '{}-event triggered by {} at {}.'.format(
+            self.type, self.trigger, self.history_date,
+        )
