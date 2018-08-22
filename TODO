@@ -5,7 +5,7 @@ A) project
 B) apps.py
     1) configuration of name and verbose_name
     2) ready(): connect receivers to the signals
-C) register.py
+C) history.py
     1) write custom managers and wrapped methods for sending signals
 D) history models
     1) Simple events and references
@@ -14,3 +14,14 @@ D) history models
 E) no history
     1) decorator/context-manager to skip history
     2) also no-history option for save, bulk,update by keyword-arg
+F) all models
+    1) nice __str__ representation
+
+Functionality Testing
+    1) generic relation on model; filtering on history
+
+
+Ideas for future features
+    1) ability to set tracking-connection -> continue to track a deleted model-
+       instance by another model-instance. Rule for tracking can be a field-value
+       or more generally a method that computes it. (or set explicitly)
