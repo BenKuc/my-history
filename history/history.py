@@ -3,8 +3,9 @@ import itertools
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
-from django.db.models.signals import class_prepared
+from django.db.models import signals as django_signals
 
+from .events import receivers, signals
 from .managers import ModelQuerySet
 from history.common.validation import (
     assert_iterable, assert_three_tuple_iterable,
@@ -66,7 +67,9 @@ class History:
         self.model = cls
         TRACKED_MODELS.add(self.model)
 
-        class_prepared.connect(self.create_history_model, sender=self.model)
+        django_signals.class_prepared.connect(
+            self.create_history_model, sender=self.model,
+        )
 
         # wrappers around methods to connect to history
         setattr(cls, 'objects', ModelQuerySet.as_manager())
@@ -76,8 +79,6 @@ class History:
             ),
         )
 
-    # TODO: on called sub-methods think carefully about implemented db-structure
-    # TODO: also think about renaming -> user interaction shell
     def create_history_model(self, sender, **kwargs):
         """
         Returns:
@@ -94,6 +95,12 @@ class History:
         #                      as it didn't exist at this point
         manager_name = settings.MY_HISTORY['MODEL_HISTORY_NAME']
         setattr(sender, manager_name, history_model.objects)
+
+        django_signals.post_save.connect(receivers.save_receiver, sender=sender)
+        django_signals.post_delete.connect(receivers.delete_receiver, sender=sender)
+        signals.post_update.connect(receivers.update_receiver, sender=sender)
+        signals.post_bulk_create.connect(receivers.bulk_create_receiver, sender=sender)
+        signals.post_mt_bulk_create.connect(receivers.mt_bulk_create_receiver, sender=sender)
 
         return history_model
 
