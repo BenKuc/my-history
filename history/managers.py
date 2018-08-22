@@ -3,7 +3,7 @@ from django.db import models
 from history.utils.bulk_create import bulk_create as mt_bulk
 
 # TODO: here hook into methods that need to send a custom signal
-# -> TODO: implement event-signals and event mdoels
+# -> TODO: implement event-signals and event models
 
 
 class ModelQuerySet(models.QuerySet):
@@ -19,8 +19,3 @@ class ModelQuerySet(models.QuerySet):
     def update(self, **kwargs):
         # TODO: pre or post?
         return super().update(**kwargs)
-
-
-class HistoryQuerySet(models.QuerySet):
-    # TODO: set model and implement methods
-    pass
