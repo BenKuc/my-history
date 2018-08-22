@@ -20,18 +20,6 @@ class ObjectEvent(models.Model):
     """
     An instance of this always belongs to a ManagerEvent-instance.
     """
-    trigger = models.CharField(
-        choices=(
-            ('QB', 'queryset: bulk_create'),
-            ('QU', 'queryset: update'),
-            ('QD', 'queryset: delete'),
-            ('D', 'delete'),
-            ('CS', 'creation by save'),
-            ('US', 'update by save')
-        )
-    )
-    # TODO: check-constraint that this corresponds to trigger (actually this
-    #       does not need db-column? -> but filtering?)
     # TODO: also check constraints for before and after concerning this
     type = models.CharField(
         choices=(
@@ -66,6 +54,4 @@ class ObjectEvent(models.Model):
         order_by = ['+history_data']
 
     def __str__(self):
-        return '{}-event triggered by {} at {}.'.format(
-            self.type, self.trigger, self.history_date,
-        )
+        return '{}-event at {}.'.format(self.type, self.history_date)
