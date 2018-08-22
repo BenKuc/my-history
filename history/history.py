@@ -1,4 +1,3 @@
-import inspect
 import itertools
 
 from django.conf import settings
@@ -6,63 +5,18 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.db.models.signals import class_prepared
 
-from .managers import HistoryQuerySet, ModelQuerySet
-from .constants import (
-    DEFAULT_ITERABLES, HISTORY_ERROR_MESSAGES, EXTRA_FIELDS_SIGNATURE,
+from .managers import ModelQuerySet
+from history.common.validation import (
+    assert_iterable, assert_three_tuple_iterable,
 )
 
 
 TRACKED_MODELS = set()
 
 
-# TODO: move this somewhere else-> validation
-def assert_iterable(name, obj):
-    base_msg = HISTORY_ERROR_MESSAGES['DEFAULT_ITERABLES']
-    msg = base_msg.format(name, DEFAULT_ITERABLES)
-    assert isinstance(obj, DEFAULT_ITERABLES), msg
-
-
-# TODO: move this somewhere else-> validation
-def assert_correct_three_tuple(name, field, value):
-    errors = []
-    if not isinstance(name, str):
-        errors.append(HISTORY_ERROR_MESSAGES['NAME_STRING'])
-    if not isinstance(field, models.Field):
-        errors.append(HISTORY_ERROR_MESSAGES['FIELD_DJANGO'])
-
-    if callable(value):
-        sig = inspect.signature(value)
-        if not set(sig.parameters.keys()) == EXTRA_FIELDS_SIGNATURE:
-            errors.append(HISTORY_ERROR_MESSAGES['WRONG_SIGNATURE'])
-    return errors
-
-
-# TODO: move this somewhere else -> general/common/settings_extraction?
 def get_history_name(model):
     scheme = settings.MY_HISTORY.MODEL_NAMING_SCHEME
     return scheme.format(name=model.__name__)
-
-
-# TODO: move this somewhere else -> validation
-def assert_three_tuple_iterable(name, obj):
-    assert_iterable(name, obj)
-
-    errors = []
-    for idx, element in enumerate(obj):
-        idx_errors = []
-        if not isinstance(element, tuple):
-            idx_errors.append(HISTORY_ERROR_MESSAGES['TUPLE_REQUIRED'])
-        elif len(element) == 3:
-            idx_errors.append(HISTORY_ERROR_MESSAGES['LENGTH_THREE'])
-        else:
-            idx_errors.append(assert_correct_three_tuple(element))
-        if idx_errors:
-            errors.append(
-                "Error on index {}: {}".format(idx, ' '.join(idx_errors))
-            )
-
-    assert not errors, HISTORY_ERROR_MESSAGES['EXTRA_FIELDS_ERROR'].format(
-        name, ' & '.join(errors))
 
 
 class History:
@@ -116,12 +70,9 @@ class History:
 
         # wrappers around methods to connect to history
         setattr(cls, 'objects', ModelQuerySet.as_manager())
-        # set history manager
-        manager_name = settings.MY_HISTORY['MODEL_HISTORY_NAME']
-        setattr(cls, manager_name, HistoryQuerySet.as_manager())
         setattr(
             cls, name, GenericRelation(
-                'history.ObjectHistory', related_name='original',
+                'history.ObjectHistory', related_name=cls.__name__,
             ),
         )
 
@@ -133,11 +84,18 @@ class History:
             The history model for the corresponding self.model.
             This method is connected via class_prepared signal.
         """
-        return type(
+        history_model = type(
             get_history_name(self.model),
             bases=self.get_bases(),
             dict=self.get_dict(),
         )
+
+        # set history manager: we couldn't do this in contribute_to_class
+        #                      as it didn't exist at this point
+        manager_name = settings.MY_HISTORY['MODEL_HISTORY_NAME']
+        setattr(sender, manager_name, history_model.objects)
+
+        return history_model
 
     def get_bases(self):
         # TODO: do this correctly (also multi-table inheritance)
