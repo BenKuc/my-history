@@ -11,6 +11,7 @@ D) history models
     1) Simple events and references
     2) base for more complex events
     3) signals B) 2)
+    4) settings check by model attribute -> schemes and so on
 E) no history
     1) decorator/context-manager to skip history
     2) also no-history option for save, bulk,update by keyword-arg
@@ -25,3 +26,6 @@ Ideas for future features
     1) ability to set tracking-connection -> continue to track a deleted model-
        instance by another model-instance. Rule for tracking can be a field-value
        or more generally a method that computes it. (or set explicitly)
+    2) make full support for GenericForeignKeys with no int field as pk
+        -> custom GenericForeignkey!
+    3) on ObjectEvent add more triggers (e.g. atomic)
