@@ -29,3 +29,5 @@ Ideas for future features
     2) make full support for GenericForeignKeys with no int field as pk
         -> custom GenericForeignkey!
     3) on ObjectEvent add more triggers (e.g. atomic)
+    4) if naming scheme changes make custom migration and detect if model is
+        already tracked
