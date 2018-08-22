@@ -63,6 +63,7 @@ class HistoryBaseModel(models.Model):
         'contenttypes.ContentType', on_delete=models.DO_NOTHING,
     )
 
+    # TODO K1
     @property
     def previous(self):
         e = self.previous_event

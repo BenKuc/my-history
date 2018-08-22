@@ -105,16 +105,14 @@ class History:
         return history_model
 
     def get_bases(self):
-        # TODO: do this correctly (also multi-table inheritance)
+        # TODO E1a
         for b in self.model.mro():
             pass
         return (models.Model, )
 
     def get_dict(self):
-        # TODO: combine this with the below also using TRACKED_MODELS
-        #if fields == '__all__':
-           # # TODO: these must be included
-          #  # TODO: consider exclude_fields
+        # TODO E1c
+        #if self.fields == '__all__':
          #   self.fields = []
         #assert isinstance(fields, (list, tuple)), ERROR_MESSAGES['TYPE_FIELDS']
 
@@ -135,11 +133,7 @@ class History:
         opts = self.model._meta
         history_fields = {}
 
-        # TODO: think fo all cases here: also reverse one-to-one and
-        #       multi-table-inheritance -> set custom bulk_create e.g.
-
-        # TODO: set correct references: history.HistoryModel/SimpleReference
-        #       depending on whether related_model in TRACKED_MODELS
+        # TODO E1b
 
         # 1) FK and OneToOne
         for f in opts.fields:
@@ -163,9 +157,8 @@ class History:
         return history_fields
 
     def get_meta_options(self):
+        # TODO E1d
         # app_label = settings.MY_HISTORY.APP_NAME
         options = {'app_label': 'history'}
-        # TODO: look into django-model Meta docs
-        # TODO: db_table_name!
         return options
 

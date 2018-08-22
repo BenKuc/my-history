@@ -8,19 +8,11 @@ __all__ = [
 ]
 
 
-# TODO: initial migration where checks are added -> maybe django-constraints!
-# TODO: consistency: same (content)type + same id -> CHECK-constraint
-# TODO: create indexes in history_date and ...
-# TODO: next and previous
-# TODO: event and next_event -> this probably goes on the model
-# TODO: check constraints for before and after
-# TODO: do check constraints that prevent saving before/after when the type
-#       is create/update -> sql
+# TODO: I
 class ObjectEvent(models.Model):
     """
     An instance of this always belongs to a ManagerEvent-instance.
     """
-    # TODO: also check constraints for before and after concerning this
     type = models.CharField(
         choices=(
             ('C', 'creation'),
@@ -28,15 +20,11 @@ class ObjectEvent(models.Model):
             ('D', 'deletion'),
         )
     )
-    # TODO: this must be adjusted to differences-boolean
-    #       -> field is added if True, otherwise not
-    # TODO: if true -> consistency checks
     diff = models.OneToOneField(Diff, on_delete=models.CASCADE, null=True)
     object_history = models.ForeignKey(
         'history.ObjectHistory', related_name='events', on_delete=models.CASCADE,
     )
     history_date = models.DateTimeField(auto_now_add=True)
-
     before = models.OneToOneField(
         'history.HistoryBaseModel',
         null=True,

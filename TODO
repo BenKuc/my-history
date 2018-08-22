@@ -1,25 +1,79 @@
 A) project
-    1) change structure: history needs to be skipped later
-    2) add everything to be imported by others to __init__
-    3) rename app -> iTrack/keep-track
-B) apps.py
-    1) configuration of name and verbose_name
-    2) ready(): connect receivers to the signals
-C) history.py
-    1) write custom managers and wrapped methods for sending signals
-D) history models
-    1) Simple events and references
-    2) base for more complex events
-    3) signals B) 2)
-    4) settings check by model attribute -> schemes and so on
-E) no history
+    1) add everything to be imported by others to __init__
+    2) rename app -> keep-track + rename modules and other files
+    3) diffs and events do not need own folder
+    4) commands: create-diffs (for re-decide on tracking diffs)
+B) settings.py and docs
+    1) delete settings_history, but provide this in docs -> better put it in models?
+    2) configuration option which receivers to use for specific signals?
+    3) history model naming scheme: when changing a new history-model is created
+       and old one not tracked -> just choose initially? keep track in db of settings
+       and create corresponding migrations automatically -> see Ideas for Future Features 1)
+    4) set path to global_extra_fields or set them directly somehow
+    5) utils.<custom bulk_create> just in docs or also for using as default?
+    6) docs: put this app's name as last one in INSTALLED_APPS (or at least after
+       all apps where models are tracked) -> see if necessary; depends on D2
+C) Packaging
+    1) provide package
+    2) make name and verbose_name for app compatible -> see pip install options
+D) apps.py
+    1) configuration of name and verbose_name -> see C2
+    2) import_models: create models there or in history
+E) history.py
+    1) implement methods
+        1a) get_bases: how to handle multi-table-inheritance?
+        1b) get_fields:
+            - think of: reverse relations (also o2o and mt-inheritance o2o)
+            - set correct references: SimpleReference -> depends on whether
+              related_model is in TRACKED_MODELS
+        1c) get_dict:
+            - combine this with the below also using TRACKED_MODELS
+            - exclude fields and fields + looping through the fields
+        1d) get_meta_options:
+            - set correct app_label
+            - set correct db_table name
+            - take a look at other stuff in django Meta docs
+F) common/constants.py
+    1) more information by model-cls and so on -> restructure code from __init__ again
+    2) partially replace by django-checks?
+G) common/validation.py
+    1) make nicer composed error-messages
+H) events/receivers.py
+    1) implement them
+I) events/models.py
+    1) see J4
+    2) initial migration where checks are added (maybe django-constraints)
+        - constraints for before and after concerning type
+        - consistent content_type and same
+        - option to add or remove diff depending on the track_diffs option
+        - does it makes sense to put FK to HistoryBaseModel?
+        - create indexes in history_date and ...?
+        - check constraints that prevent saving before/after when the type is create/update -> sql
+J) diffs
+    1) implement models generically or a base to inherit from
+    2) custom fields with old and new value
+    3) this whole code must be thought through -> what is to be displayed by diffs on relations and so on?
+    4) set O2O on diff or on ObjectEvent?
+K) models.py
+    1) change next/previous
+L) utils/atomic_history.py
+    1) create a decorator/context-manager that puts everything inside in one history event!
+    2) corresponding to that: decorator + context manager: history.atomic ->
+          all objects will be saved in the same history-event
+    3) __init__:# which arguments does it need? initialize variables needed
+    4) look into context-manager to see how to implement enter and exit
+    5) implementation ideas:
+        a) connect internal method (or dispatcher?) to all the signals
+        b) this signal leads to not activating the other signals (maybe by disconnecting them temporarily)
+        c) disconnect dispatcher and connect others again
+M) utils/bulk_create.py
+    1) bulk_create that can handle multi-table-inheritance
+N) utils/no_history.py
     1) decorator/context-manager to skip history
     2) also no-history option for save, bulk,update by keyword-arg
-F) all models
+O) General
     1) nice __str__ representation
-
-Functionality Testing
-    1) generic relation on model; filtering on history
+P) testing
 
 
 Ideas for future features
@@ -28,6 +82,3 @@ Ideas for future features
        or more generally a method that computes it. (or set explicitly)
     2) make full support for GenericForeignKeys with no int field as pk
         -> custom GenericForeignkey!
-    3) on ObjectEvent add more triggers (e.g. atomic)
-    4) if naming scheme changes make custom migration and detect if model is
-        already tracked

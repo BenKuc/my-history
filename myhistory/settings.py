@@ -126,39 +126,22 @@ STATIC_URL = '/static/'
 # TODO: documentation: put my-history into installed aps +
 #       put it after all apps that require it!
 
-# TODO: maybe move this ti settings_history? or move settings_history into
-#       settings
-
-# TODO: make a settings tracking and custom migrations for renaming and so on
-#       -> db-table!
-
 # my-history settings
 MY_HISTORY = {
-    # TODO: this does not work, because it must the app's module name ->
-    #       pip install option
+    # TODO C2
     'APP_NAME': 'my_history',
     'VERBOSE_APP_NAME': 'History',
 
     'DB_ALIAS': 'default',
-    # TODO: configuration option which receivers to use for specific signals?
 
     # XXX: make this better in terms of available variables
-    # TODO: what about renaming this? -> then a new model is created and the old
-    #       one is not tracked -> so you can choose it, but just initially?
-    #       (how to do that) -> or support model-renaming? -> migration?!
+    # TODO B3
     'MODEL_NAMING_SCHEME': 'History{model}',
     'DB_TABLE_NAMING_SCHEME': 'history_{model}',
 
-    # extra_fields to be tracked on every model?
-    # TODO: import this from other settings-file -> also setting: path to
-    #       global_extra_fields
+    # extra_fields to be tracked on every model
+    # TODO B4
     'GLOBAL_EXTRA_FIELDS': [],
 
     'MODEL_HISTORY_NAME': 'history_objects',
-
-    # TODO: If None: always do history; else: think of how to implement this
-    'HANDLING_SIGN': None,
-
-    # TODO: if custom bulk_create is tested provide settings option
-    # for this to be the default bulk_create
 }

@@ -1,9 +1,6 @@
 DEFAULT_ITERABLES = (list, tuple, set, )
-EXTRA_FIELDS_SIGNATURE = {'instance', ''}
+EXTRA_FIELDS_SIGNATURE = {'instance', 'request'}
 
-# TODO: more information by model-cls and so on
-#       -> restructure code from __init__ again
-# TODO: partially replace by django-checks
 
 HISTORY_ERROR_MESSAGES = {
     'DEFAULT_ITERABLES': "Attribute {name} must an instance of one of the "
