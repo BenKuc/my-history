@@ -1,5 +1,10 @@
 # TODO: create a decorator/context-manager that puts everything inside in one history event!
 from contextlib import ContextDecorator
+# TODO: implement a dispatcher to bundle history functinality
+
+
+# TODO: corresponding to that: decorator + context manager: history.atomic ->
+#       all objects will be saved in the same history-event
 
 
 class Atomic(ContextDecorator):

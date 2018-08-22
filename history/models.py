@@ -30,60 +30,40 @@ class SimpleObjectReference(models.Model):
 
 # TODO: make this dynamically by copying the pk field!
 class SimpleObjectReferenceById(SimpleObjectReference):
+    # TODO: also history_id
     object_pk = models.PositiveIntegerField()
 
 
 # TODO: make this dynamically by copying the pk field!
 class SimpleObjectReferenceByString(SimpleObjectReference):
+    # TODO: also history_id
     object_pk = models.CharField(max_length=255)
 
 
-# this is where all the history of on object is gathered together
+# TODO: maybe make this a history-descriptor, but move attributes to a
+#       BaseClass for event
+# TODO: also put special methods on this descriptor (like updates, events...)
+# this is where all the history of an object is gathered together
 class ObjectHistory(models.Model):
-    # TODO: set this field dynamically
+    # TODO: set this field dynamically -> how to handle different pk-fields
+    #       -> assume that int and str will be enough actually
     object_pk = models.PositiveIntegerField()
     content_type = models.ForeignKey(ContentType)
-    history_id = None
+    # TODO: overwrite AutoField and set as pk
+    history_id = None  # TODO: this should be a field like: if the
+                       # object_pk was duplicated in the original table
+                       # this is the number of duplication in order!
 
     class Meta:
-        # TODO: could be that original pk is re-given to a model -> problem
-        unique_together = ('object_pk', 'content_type', )
+        unique_together = ('object_pk', 'content_type', 'history_id', )
 
-
-class ManagerEvent(models.Model):
-    pass
-
-
-class ObjectEvent(models.Model):
-    super_event = models.OneToOneField(ManagerEvent)
-    # TODO: related_query_name?
-    object_history = models.ForeignKey(ObjectHistory, related_name='events')
-    history_date = ''
-    type = ['UPDATE', 'CREATE', 'BULK_CREATE', 'BULK_UPDATE', ]
-    # TODO: maybe wrap all create/update methods on queryset
-    #       to get accurate all types
-    trigger = ['save', 'bulk_create', 'bulk_update']  # TODO: move to ManagerEvent
-
-    def __str__(self):
-        return '{type}-event triggered by '
-
-    # TODO: order_by history_date!
-
-
-# TODO: check constraints for before and after
-# TODO: maybe remove this in favor of ObjectEvent -> type is a computed value by before and after -> get control over setattr by type
-# TODO: do check constraints that prevent saving before/after when the type is create/update -> sql
-class Creation(Event):
-    after = models.ForeignKey('history.PseudoHistoryModel', related_name='previous_event')
-
-
-class Update(Event):
-    before = models.ForeignKey('history.PseudoHistoryModel', related_name='next_Event')
-    after = models.ForeignKey('history.PseudoHistoryModel', related_name='previous_event')
-
-
-class Deletion(Event):
-    before = models.ForeignKey('history.Pseudo...', related_name='next_event')
+    # TODO: this is for convenience: obj.history.<manager_method>
+    def __getattribute__(self, item):
+        try:
+            # TODO: self.manager
+            return getattr(self, item)
+        except AttributeError:
+            return super().__getattribute__(item)
 
 
 # TODO: write base_class for this

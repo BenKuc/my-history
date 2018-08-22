@@ -126,7 +126,8 @@ class History:
         )
 
     # TODO: on called sub-methods think carefully about implemented db-structure
-    def create_history_model(self):
+    # TODO: also think about renaming -> user interaction shell
+    def create_history_model(self, sender, **kwargs):
         """
         Returns:
             The history model for the corresponding self.model.
