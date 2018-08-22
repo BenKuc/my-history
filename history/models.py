@@ -19,7 +19,7 @@ class ObjectHistory(models.Model):
     history_object = GenericForeignKey(
         ct_field='model', fk_field='id',
     )
-    duplication = models.PositiveSmallIntegerField()
+    duplication = models.PositiveIntegerField()
 
     class Meta:
         unique_together = ('object_pk', 'content_type', 'history_id', )
@@ -35,37 +35,33 @@ class ObjectHistory(models.Model):
         )
         super().save(force_insert, force_update, using, update_fields)
 
-    # TODO: implementation of these methods are dependent on events! ->
-    #       also look at HistoryBaseModel
-
-    def all(self):
-        pass
+    def all_events(self):
+        return self.events.all()
 
     def updates(self):
-        return
-
-    def events(self):
-        pass
+        return self.events.filter(type='U')
 
     def creation(self):
-        pass
+        return self.events.filter(type='C').first()
 
     def deletion(self):
-        pass
+        return self.events.filter(type='D').first()
 
-    def manager_events(self):
-        pass
+    def all_tracks(self):
+        events = self.events.select_related('after')
+        return events.values_list('after', flat=True)
 
-    def history_events(self):
-        pass
+    def latest_track(self):
+        return self.events.select_related('after').last().after
+
+    def initial_track(self):
+        return self.events.select_related('after').first().after
 
 
-# TODO: o2o to this model by event
-# TODO: o2o-extension by multi-table-inheritance from this model to the actual
-#       history_model -> this is a base-class: HistoryModel
 class HistoryBaseModel(models.Model):
-    # TODO: you can do the django trick here with type:
-    # (deletion, upadte, creation)
+    model = models.ForeignKey(
+        'contenttypes.ContentType', on_delete=models.DO_NOTHING,
+    )
 
     @property
     def previous(self):
@@ -78,35 +74,9 @@ class HistoryBaseModel(models.Model):
         return e.after if hasattr(e, 'after') else None
 
 
-# TODO: do we really want this?
-class TrackTracker(models.Model):
-    model = models.ForeignKey('contenttypes.ContentType')
-    history_model = models.ForeignKey('contenttypes.ConentType')
-    # TODO: maybe table-name and so one -> corresponding to settings
-
-
 class SimpleObjectReference(models.Model):
-    model = models.ForeignKey('contenttypes.ContentType', on_delete=models.CASCADE)
-
-    # TODO: make this a manager?
-    @property
-    def get_object(self):
-        try:
-            return self.model.objects.get(pk=self.object_pk)
-        except models.ObjectDoesNotExist:
-            return None
-
-    class Meta:
-        abstract = True
-
-
-# TODO: make this dynamically by copying the pk field!
-class SimpleObjectReferenceById(SimpleObjectReference):
-    # TODO: also history_id
-    object_pk = models.PositiveIntegerField()
-
-
-# TODO: make this dynamically by copying the pk field!
-class SimpleObjectReferenceByString(SimpleObjectReference):
-    # TODO: also history_id
-    object_pk = models.CharField(max_length=255)
+    model = models.ForeignKey(
+        'contenttypes.ContentType', on_delete=models.CASCADE,
+    )
+    pk_value = models.CharField(max_length=255)
+    instance = GenericForeignKey(fk_field='pk_value', ct_field='model')
