@@ -158,4 +158,7 @@ MY_HISTORY = {
 
     # TODO: If None: always do history; else: think of how to implement this
     'HANDLING_SIGN': None,
+
+    # TODO: if custom bulk_create is tested provide settings option
+    # for this to be the default bulk_create
 }
