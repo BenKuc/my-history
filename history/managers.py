@@ -1,21 +1,37 @@
+import copy
+
 from django.db import models
 
 from history.utils.bulk_create import bulk_create as mt_bulk
-
-# TODO: here hook into methods that need to send a custom signal
-# -> TODO: implement event-signals and event models
+from .events import signals
 
 
 class ModelQuerySet(models.QuerySet):
-    # TODO: if this is tested provide settings option for this to be the
-    #       default bulk_create
     def mt_bulk_create(self, objs, batch_size=None):
-        return mt_bulk(objs, batch_size)
+        res = mt_bulk(objs, batch_size)
+        signals.post_mt_bulk_create.send(
+            self.model,
+            ids=res,
+            objs=objs,
+            batch_size=batch_size,
+        )
+        return res
 
     def bulk_create(self, objs, batch_size=None):
-        # TODO: pre or post?
-        return super().bulk_create(objs, batch_size)
+        res = super().bulk_create(objs, batch_size)
+        signals.post_bulk_create.send(
+            self.model,
+            ids=res,
+            objs=objs,
+            batch_size=batch_size,
+        )
+        return res
 
     def update(self, **kwargs):
-        # TODO: pre or post?
-        return super().update(**kwargs)
+        res = super().update(**kwargs)
+        signals.post_update(
+            self.model,
+            queryset=copy.copy(self),
+            update_kwargs=kwargs,
+        )
+        return res
