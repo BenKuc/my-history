@@ -1,7 +1,15 @@
-# TODO: make this extensible: let user define signal-classes and model-methods that should be tracked
+from django.db.models.signals import ModelSignal
 
-# TODO: existing signals:
-# Deletion for single instance and qs -> post_delete;
-# Creation/Update for single instance -> post_save;
-# Creation of multiple instances -> custom: post_bulk_create; + custom: post_custom_bulk_create;
-# Update of multiple instances -> custom: post_update;
+
+post_bulk_create = ModelSignal(
+    providing_args=['ids', 'objs', 'batch_size'],
+    use_caching=True,
+)
+post_mt_bulk_create = ModelSignal(
+    providing_args=['ids', 'objs', 'batch_size'],
+    use_caching=True,
+)
+post_update = ModelSignal(
+    providing_args=['queryset', 'update_kwarg'],
+    use_caching=True,
+)
