@@ -43,6 +43,7 @@ class History:
         assert_iterable('exclude_fields', exclude_fields)
         self.exclude_fields = exclude_fields
 
+        # TODO: this has to be resolved as in DOCUMENTATION
         global_extra_fields = settings.MY_HISTORY['GLOBAL_EXTRA_FIELDS']
         assert_three_tuple_iterable('global_extra_fields', global_extra_fields)
         assert_three_tuple_iterable('extra_fields', extra_fields)

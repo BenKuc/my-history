@@ -1,18 +1,14 @@
 A) project
     5) commands: set history on all existing rows
 B) settings.py and docs
-    1) delete settings_history, but provide this in docs -> better put it in models?
-    2) configuration option which receivers to use for specific signals?
     3) history model naming scheme: when changing a new history-model is created
        and old one not tracked -> just choose initially? keep track in db of settings
        and create corresponding migrations automatically -> see Ideas for Future Features 1)
-    4) set path to global_extra_fields or set them directly somehow
+       -> better is a command for that
     5) utils.<custom bulk_create> just in docs or also for using as default?
-    6) docs: put this app's name as last one in INSTALLED_APPS (or at least after
-       all apps where models are tracked) -> see if necessary; depends on D2
 C) Packaging
     1) provide package
-    2) make name and verbose_name for app compatible -> see pip install options
+    2) make name for app compatible -> see pip install options
 D) apps.py
     1) configuration of name and verbose_name -> see C2
     2) import_models: create models there or in history

@@ -35,6 +35,7 @@ class ObjectHistory(models.Model):
         )
         super().save(force_insert, force_update, using, update_fields)
 
+    # TODO: these need to be added in manager
     def all_events(self):
         return self.events.all()
 
@@ -75,6 +76,7 @@ class HistoryBaseModel(models.Model):
         return e.after if hasattr(e, 'after') else None
 
 
+# TODO: we do not want this -> make correct history for all!
 class SimpleObjectReference(models.Model):
     model = models.ForeignKey(
         'contenttypes.ContentType', on_delete=models.CASCADE,
@@ -120,19 +122,31 @@ class ObjectEvent(models.Model):
         return '{}-event at {}.'.format(self.type, self.history_date)
 
 
+# TODO: make this abstract?
+# TODO: where is the db-link between model and history-model?
+# TODO: set correct indexes and order_by to speed up querying
 class TrackBase(models.Model):
     composed_pk = models.CharField(
         max_length=255, primary_key=True, unique=True,
     )
+    # TODO: model is not required -> the model is implied (see above)
     model = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     id = models.CharField(max_length=255)
+    # TODO: this is invalid and also reverse relation has to be removed
+    #       -> descriptor
     history_object = GenericForeignKey(
         ct_field='model', fk_field='id',
     )
+    # TODO: this must be computed -> this is also unnecessary;
     duplication = models.PositiveIntegerField()
+    # TODO: this is duplicated data due to history_date
     rank = models.PositiveIntegerField()
+    # TODO: add correct kwargs + built in unique_together; history_date is
+    #       somehow unique with model and id?
+    history_date = models.DateTimeField()
 
     class Meta:
+        # TODO: a track_id does not make sense -> we will never query for that
         unique_together = ('object_pk', 'content_type', 'id', 'rank', )
 
     # TODO:
