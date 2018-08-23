@@ -33,6 +33,9 @@ E) history.py
             - set correct app_label
             - set correct db_table name
             - take a look at other stuff in django Meta docs
+        1e) obj.history
+            - .all() needs to be returned
+            - obj.history is just a generic-reverse-descriptor
 F) common/constants.py
     1) more information by model-cls and so on -> restructure code from __init__ again
     2) partially replace by django-checks?
