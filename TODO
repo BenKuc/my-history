@@ -1,6 +1,6 @@
 A) project
-    3) diffs and events do not need own folder
     4) commands: create-diffs (for re-decide on tracking diffs)
+    5) commands: set history on all existing rows
 B) settings.py and docs
     1) delete settings_history, but provide this in docs -> better put it in models?
     2) configuration option which receivers to use for specific signals?
