@@ -2,7 +2,7 @@ import inspect
 
 from django.db.models.fields import Field as DjangoField
 
-from history.common.constants import (
+from keep_track.common.constants import (
     DEFAULT_ITERABLES, HISTORY_ERROR_MESSAGES, EXTRA_FIELDS_SIGNATURE,
 )
 

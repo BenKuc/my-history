@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'test_app',
-    'history',
+    'keep_track',
 ]
 
 MIDDLEWARE = [

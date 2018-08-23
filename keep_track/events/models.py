@@ -22,17 +22,17 @@ class ObjectEvent(models.Model):
     )
     diff = models.OneToOneField(Diff, on_delete=models.CASCADE, null=True)
     object_history = models.ForeignKey(
-        'history.ObjectHistory', related_name='events', on_delete=models.CASCADE,
+        'keep_track.ObjectHistory', related_name='events', on_delete=models.CASCADE,
     )
     history_date = models.DateTimeField(auto_now_add=True)
     before = models.OneToOneField(
-        'history.HistoryBaseModel',
+        'keep_track.HistoryBaseModel',
         null=True,
         on_delete=models.CASCADE,
         related_name='next_event',
     )
     after = models.OneToOneField(
-        'history.HistoryBaseModel',
+        'keep_track.HistoryBaseModel',
         null=True,
         on_delete=models.CASCADE,
         related_name='previous_event',

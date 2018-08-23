@@ -2,7 +2,7 @@ import copy
 
 from django.db import models
 
-from history.utils.bulk_create import bulk_create as mt_bulk
+from keep_track.utils.bulk_create import bulk_create as mt_bulk
 from .events import signals
 
 

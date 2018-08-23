@@ -1,5 +1,4 @@
 A) project
-    1) add everything to be imported by others to __init__
     2) rename app -> keep-track + rename modules and other files
     3) diffs and events do not need own folder
     4) commands: create-diffs (for re-decide on tracking diffs)

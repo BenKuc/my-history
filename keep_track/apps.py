@@ -3,7 +3,7 @@ from django.conf import settings
 
 
 class HistoryConfig(AppConfig):
-    name = 'history'
+    name = 'keep_track'
     verbose_name = settings.MY_HISTORY['VERBOSE_APP_NAME']
 
     def import_models(self):

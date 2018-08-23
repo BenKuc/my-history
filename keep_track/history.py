@@ -7,7 +7,7 @@ from django.db.models import signals as django_signals
 
 from .events import receivers, signals
 from .managers import ModelQuerySet
-from history.common.validation import (
+from keep_track.common.validation import (
     assert_iterable, assert_three_tuple_iterable,
 )
 
@@ -57,8 +57,8 @@ class History:
 
     def contribute_to_class(self, cls, name):
         """
-        This sets all the history methods, managers and wrappers on the regarded
-        model that are required for the history to work.
+        This sets all the keep_track methods, managers and wrappers on the regarded
+        model that are required for the keep_track to work.
 
         Args:
             cls: The model class on which History is set.
@@ -75,14 +75,14 @@ class History:
         setattr(cls, 'objects', ModelQuerySet.as_manager())
         setattr(
             cls, name, GenericRelation(
-                'history.ObjectHistory', related_name=cls.__name__,
+                'keep_track.ObjectHistory', related_name=cls.__name__,
             ),
         )
 
     def create_history_model(self, sender, **kwargs):
         """
         Returns:
-            The history model for the corresponding self.model.
+            The keep_track model for the corresponding self.model.
             This method is connected via class_prepared signal.
         """
         history_model = type(
@@ -91,7 +91,7 @@ class History:
             dict=self.get_dict(),
         )
 
-        # set history manager: we couldn't do this in contribute_to_class
+        # set keep_track manager: we couldn't do this in contribute_to_class
         #                      as it didn't exist at this point
         manager_name = settings.MY_HISTORY['MODEL_HISTORY_NAME']
         setattr(sender, manager_name, history_model.objects)
@@ -159,6 +159,6 @@ class History:
     def get_meta_options(self):
         # TODO E1d
         # app_label = settings.MY_HISTORY.APP_NAME
-        options = {'app_label': 'history'}
+        options = {'app_label': 'keep_track'}
         return options
 
