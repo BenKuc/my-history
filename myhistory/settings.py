@@ -123,25 +123,21 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 
-# TODO: documentation: put my-history into installed aps +
-#       put it after all apps that require it!
-
-# my-history settings
-MY_HISTORY = {
+# KeepTrack settings
+KEEP_TRACK = {
     # TODO C2
-    'APP_NAME': 'my_history',
-    'VERBOSE_APP_NAME': 'History',
+    'APP_NAME': 'keep_track',
+    'VERBOSE_APP_NAME': 'KeepTrack',
+    'GLOBAL_EXTRA_FIELDS': 'a/path/to/file.iterable',
 
+    # TODO: put these into Documentation
+
+    # TODO: this needs to be implemented
     'DB_ALIAS': 'default',
 
     # XXX: make this better in terms of available variables
     # TODO B3
     'MODEL_NAMING_SCHEME': 'History{model}',
     'DB_TABLE_NAMING_SCHEME': 'history_{model}',
-
-    # extra_fields to be tracked on every model
-    # TODO B4
-    'GLOBAL_EXTRA_FIELDS': [],
-
     'MODEL_HISTORY_NAME': 'history_objects',
 }

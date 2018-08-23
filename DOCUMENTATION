@@ -1,0 +1,27 @@
+1) Installation
+    ...
+    Now go on with Settings.
+2) Settings
+    General: Put the app name you want to use after all other apps in
+             INSTALLED_APPS that contain models to be tracked by KeepTrack.
+
+    In your django settings.py file you can specify custom settings for the
+    KeepTrack app as dictionary with variable name: KEEP_TRACK.
+
+    a) APP_NAME
+        This is the name for the app to be used. See installation to make this
+        work accurately with the name of the actual module, which must be
+        consistent.
+    b) VERBOSE_APP_NAME
+        The verbose name of the history app.
+    c) GLOBAL_EXTRA_FIELDS
+        Here you can provide the path to a list/tuple/set that contains extra
+        fields to be tracked by every track-model (such as user).
+        This is a string that consists of the path to the file/module the
+        iterable is contained in and then separated by a '.' the name of the
+        iterable in that module.
+        The elements in the iterable are 3-tuples:
+            (name: str, field: django.db.models.Field, value: hardcoded value or callable)
+3) Track-Models
+4) Queries
+5) API and managers
