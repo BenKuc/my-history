@@ -4,8 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 
 
 __all__ = [
-    'Diff', 'ObjectHistory', 'SimpleObjectReference', 'HistoryBaseModel',
-    'ObjectEvent',
+    'ObjectHistory', 'SimpleObjectReference', 'HistoryBaseModel', 'ObjectEvent',
 ]
 
 
@@ -84,13 +83,6 @@ class SimpleObjectReference(models.Model):
     instance = GenericForeignKey(fk_field='pk_value', ct_field='model')
 
 
-# TODO: J1,2,3,4
-
-
-class Diff(models.Model):
-    event = None  # TODO: unique with pk/id (OneToOne?)
-
-
 # TODO: I
 class ObjectEvent(models.Model):
     """
@@ -128,3 +120,29 @@ class ObjectEvent(models.Model):
         return '{}-event at {}.'.format(self.type, self.history_date)
 
 
+class TrackBase(models.Model):
+    composed_pk = models.CharField(
+        max_length=255, primary_key=True, unique=True,
+    )
+    model = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    id = models.CharField(max_length=255)
+    history_object = GenericForeignKey(
+        ct_field='model', fk_field='id',
+    )
+    duplication = models.PositiveIntegerField()
+    rank = models.PositiveIntegerField()
+
+    class Meta:
+        unique_together = ('object_pk', 'content_type', 'id', 'rank', )
+
+    # TODO:
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        qs = ObjectHistory.objects.filter(id=self.id)
+        self.duplication = qs.count()
+        if self._state.adding:
+            self.duplication += 1
+        self.composed_pk = '{}-{}-{}'.format(
+            self.model.__name__, self.id, self.duplication,
+        )
+        super().save(force_insert, force_update, using, update_fields)

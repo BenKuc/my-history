@@ -1,5 +1,4 @@
 A) project
-    4) commands: create-diffs (for re-decide on tracking diffs)
     5) commands: set history on all existing rows
 B) settings.py and docs
     1) delete settings_history, but provide this in docs -> better put it in models?
@@ -46,15 +45,9 @@ I) events/models.py
     2) initial migration where checks are added (maybe django-constraints)
         - constraints for before and after concerning type
         - consistent content_type and same
-        - option to add or remove diff depending on the track_diffs option
         - does it makes sense to put FK to HistoryBaseModel?
         - create indexes in history_date and ...?
         - check constraints that prevent saving before/after when the type is create/update -> sql
-J) diffs
-    1) implement models generically or a base to inherit from
-    2) custom fields with old and new value
-    3) this whole code must be thought through -> what is to be displayed by diffs on relations and so on?
-    4) set O2O on diff or on ObjectEvent?
 K) models.py
     1) change next/previous
 L) utils/atomic_history.py
@@ -83,3 +76,5 @@ Ideas for future features
        or more generally a method that computes it. (or set explicitly)
     2) make full support for GenericForeignKeys with no int field as pk
         -> custom GenericForeignkey!
+    3) Differences: make custom fields (or even generic): old and new value;
+        option for has_changed; state_1 and state_2;

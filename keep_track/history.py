@@ -22,14 +22,11 @@ def get_history_name(model):
 
 class History:
 
-    def __init__(self, fields='__all__', track_diffs=False,
-                 extra_fields=None, exclude_fields=None):
+    def __init__(self, fields='__all__', extra_fields=None, exclude_fields=None):
         """
 
         Args:
             fields: fields that should be tracked
-            track_diffs: boolean indicating whether differences
-                         shall be tracked
             extra_fields: This is a list of 3-tuples for tracking extra stuff
                              (
                                 name: str,
@@ -40,7 +37,6 @@ class History:
                             is __all__.
         """
         self.fields = fields
-        self.track_diffs = track_diffs
 
         if exclude_fields is None:
             exclude_fields = {}
