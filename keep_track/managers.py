@@ -3,7 +3,7 @@ import copy
 from django.db import models
 
 from keep_track.utils.bulk_create import bulk_create as mt_bulk
-from .events import signals
+from keep_track import signals
 
 
 class ModelQuerySet(models.QuerySet):

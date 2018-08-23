@@ -5,7 +5,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.db.models import signals as django_signals
 
-from .events import receivers, signals
+from keep_track import receivers, signals
 from .managers import ModelQuerySet
 from keep_track.common.validation import (
     assert_iterable, assert_three_tuple_iterable,

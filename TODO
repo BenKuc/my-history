@@ -1,5 +1,4 @@
 A) project
-    2) rename app -> keep-track + rename modules and other files
     3) diffs and events do not need own folder
     4) commands: create-diffs (for re-decide on tracking diffs)
 B) settings.py and docs

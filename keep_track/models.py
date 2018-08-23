@@ -2,10 +2,11 @@ from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 
-# import all models into this as django will only recognize them in the
-# specified models module.
-from .diffs.models import *
-from .events import *
+
+__all__ = [
+    'Diff', 'ObjectHistory', 'SimpleObjectReference', 'HistoryBaseModel',
+    'ObjectEvent',
+]
 
 
 # XXX: pk and (model, id, duplication) are kinda duplicated data, but since
@@ -81,3 +82,49 @@ class SimpleObjectReference(models.Model):
     )
     pk_value = models.CharField(max_length=255)
     instance = GenericForeignKey(fk_field='pk_value', ct_field='model')
+
+
+# TODO: J1,2,3,4
+
+
+class Diff(models.Model):
+    event = None  # TODO: unique with pk/id (OneToOne?)
+
+
+# TODO: I
+class ObjectEvent(models.Model):
+    """
+    An instance of this always belongs to a ManagerEvent-instance.
+    """
+    type = models.CharField(
+        choices=(
+            ('C', 'creation'),
+            ('U', 'update'),
+            ('D', 'deletion'),
+        )
+    )
+    diff = models.OneToOneField(Diff, on_delete=models.CASCADE, null=True)
+    object_history = models.ForeignKey(
+        'keep_track.ObjectHistory', related_name='events', on_delete=models.CASCADE,
+    )
+    history_date = models.DateTimeField(auto_now_add=True)
+    before = models.OneToOneField(
+        'keep_track.HistoryBaseModel',
+        null=True,
+        on_delete=models.CASCADE,
+        related_name='next_event',
+    )
+    after = models.OneToOneField(
+        'keep_track.HistoryBaseModel',
+        null=True,
+        on_delete=models.CASCADE,
+        related_name='previous_event',
+    )
+
+    class Meta:
+        order_by = ['+history_data']
+
+    def __str__(self):
+        return '{}-event at {}.'.format(self.type, self.history_date)
+
+
