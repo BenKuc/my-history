@@ -160,3 +160,23 @@ class TrackBase(models.Model):
             self.model.__name__, self.id, self.duplication,
         )
         super().save(force_insert, force_update, using, update_fields)
+
+    # TODO: just to save idea
+    def query(self):
+        # TODO: inspect query behaviour!
+
+        last_create = TrackBase.objects.order_by('+track_date').filter(type='C').last()
+        TrackBase.objects.filter(track_date__gte=last_create)
+
+
+        TrackBase.objects.annotate(
+            creation_date=models.Subquery(
+                TrackBase.objects.order_by(
+                    'track_date',
+                ).filter(
+                    type='C',
+                ).values('track_date')[:1]
+            ),
+        ).filter(
+            creation_date__gte=models.Max('creation_date'),
+        )
