@@ -90,3 +90,8 @@ class TrackModelRelation:
         related_name='track_model',
         unique=True,
     )
+
+    def __str__(self):
+        return 'Tracking of {} by {}'.format(
+            self.model.__name__, self.track_model.__name__,
+        )
