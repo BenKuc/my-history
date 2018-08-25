@@ -17,8 +17,6 @@ E) history.py
         1a) get_bases: how to handle multi-table-inheritance?
         1b) get_fields:
             - think of: reverse relations (also o2o and mt-inheritance o2o)
-            - set correct references: SimpleReference -> depends on whether
-              related_model is in TRACKED_MODELS
         1c) get_dict:
             - combine this with the below also using TRACKED_MODELS
             - exclude fields and fields + looping through the fields
@@ -37,15 +35,10 @@ G) common/validation.py
 H) events/receivers.py
     1) implement them
 I) events/models.py
-    1) see J4
     2) initial migration where checks are added (maybe django-constraints)
-        - constraints for before and after concerning type
         - consistent content_type and same
-        - does it makes sense to put FK to HistoryBaseModel?
         - create indexes in history_date and ...?
         - check constraints that prevent saving before/after when the type is create/update -> sql
-K) models.py
-    1) change next/previous
 L) utils/atomic_history.py
     1) create a decorator/context-manager that puts everything inside in one history event!
     2) corresponding to that: decorator + context manager: history.atomic ->

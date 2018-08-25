@@ -1,95 +1,17 @@
 from django.db import models
-from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
+from django.utils import timezone
 
 
 __all__ = [
-    'ObjectHistory', 'SimpleObjectReference', 'HistoryBaseModel', 'ObjectEvent',
+    'EventBase', 'TrackBase', 'TrackModelRelation',
 ]
 
 
-# XXX: pk and (model, id, duplication) are kinda duplicated data, but since
-#      django does not support composed pks, it is okay.
-class ObjectHistory(models.Model):
-    composed_pk = models.CharField(
-        max_length=255, primary_key=True, unique=True,
-    )
-    id = models.CharField(max_length=255)
-    model = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    history_object = GenericForeignKey(
-        ct_field='model', fk_field='id',
-    )
-    duplication = models.PositiveIntegerField()
-
-    class Meta:
-        unique_together = ('object_pk', 'content_type', 'history_id', )
-
-    def save(self, force_insert=False, force_update=False, using=None,
-             update_fields=None):
-        qs = ObjectHistory.objects.filter(id=self.id)
-        self.duplication = qs.count()
-        if self._state.adding:
-            self.duplication += 1
-        self.composed_pk = '{}-{}-{}'.format(
-            self.model.__name__, self.id, self.duplication,
-        )
-        super().save(force_insert, force_update, using, update_fields)
-
-    # TODO: these need to be added in manager
-    def all_events(self):
-        return self.events.all()
-
-    def updates(self):
-        return self.events.filter(type='U')
-
-    def creation(self):
-        return self.events.filter(type='C').first()
-
-    def deletion(self):
-        return self.events.filter(type='D').first()
-
-    def all_tracks(self):
-        events = self.events.select_related('after')
-        return events.values_list('after', flat=True)
-
-    def latest_track(self):
-        return self.events.select_related('after').last().after
-
-    def initial_track(self):
-        return self.events.select_related('after').first().after
-
-
-class HistoryBaseModel(models.Model):
-    model = models.ForeignKey(
-        'contenttypes.ContentType', on_delete=models.DO_NOTHING,
-    )
-
-    # TODO K1
-    @property
-    def previous(self):
-        e = self.previous_event
-        return e.before if hasattr(e, 'before') else None
-
-    @property
-    def next(self):
-        e = self.next_event
-        return e.after if hasattr(e, 'after') else None
-
-
-# TODO: we do not want this -> make correct history for all!
-class SimpleObjectReference(models.Model):
-    model = models.ForeignKey(
-        'contenttypes.ContentType', on_delete=models.CASCADE,
-    )
-    pk_value = models.CharField(max_length=255)
-    instance = GenericForeignKey(fk_field='pk_value', ct_field='model')
-
-
+# TODO: this must be added dynamically to TrackModel + to model dynamically
+event = models.OneToOneField('keep_track.Event', related_name='state')
+# TODO: add pk-field for the model (specific)
 # TODO: I
-class ObjectEvent(models.Model):
-    """
-    An instance of this always belongs to a ManagerEvent-instance.
-    """
+class EventBase(models.Model):
     type = models.CharField(
         choices=(
             ('C', 'creation'),
@@ -97,86 +19,76 @@ class ObjectEvent(models.Model):
             ('D', 'deletion'),
         )
     )
-    diff = models.OneToOneField(Diff, on_delete=models.CASCADE, null=True)
-    object_history = models.ForeignKey(
-        'keep_track.ObjectHistory', related_name='events', on_delete=models.CASCADE,
-    )
-    history_date = models.DateTimeField(auto_now_add=True)
-    before = models.OneToOneField(
-        'keep_track.HistoryBaseModel',
-        null=True,
-        on_delete=models.CASCADE,
-        related_name='next_event',
-    )
-    after = models.OneToOneField(
-        'keep_track.HistoryBaseModel',
-        null=True,
-        on_delete=models.CASCADE,
-        related_name='previous_event',
-    )
+    track_date = models.DateTimeField(default=timezone.now())
 
     class Meta:
-        order_by = ['+history_data']
+        ordering = ['+track_date']
+        abstract = True
 
     def __str__(self):
-        return '{}-event at {}.'.format(self.type, self.history_date)
+        return '{}-event at {}.'.format(self.type, self.track_date)
+
+    @property
+    def previous(self):
+        state_pk_name = self.__class__._meta.get_field('state').related_model.pk.name
+        state_pk_val = self.state.pk
+        # TODO: use F()-expressions here: F('track_date')
+        look_up = {
+            state_pk_name: state_pk_val, 'track_date__lte': self.track_date,
+        }
+        return self.__class__.objects.filter(**look_up).last()
+
+    @property
+    def next(self):
+        state_pk_name = self.__class__._meta.get_field(
+            'state').related_model.pk.name
+        state_pk_val = self.state.pk
+        # TODO: use F()-expressions here: F('track_date')
+        look_up = {
+            state_pk_name: state_pk_val, 'track_date__gte': self.track_date,
+        }
+        return self.__class__.objects.filter(**look_up).first()
 
 
-# TODO: make this abstract?
-# TODO: where is the db-link between model and history-model?
-# TODO: set correct indexes and order_by to speed up querying
 class TrackBase(models.Model):
-    composed_pk = models.CharField(
-        max_length=255, primary_key=True, unique=True,
-    )
-    # TODO: model is not required -> the model is implied (see above)
-    model = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    id = models.CharField(max_length=255)
-    # TODO: this is invalid and also reverse relation has to be removed
-    #       -> descriptor
-    history_object = GenericForeignKey(
-        ct_field='model', fk_field='id',
-    )
-    # TODO: this must be computed -> this is also unnecessary;
-    duplication = models.PositiveIntegerField()
-    # TODO: this is duplicated data due to history_date
-    rank = models.PositiveIntegerField()
-    # TODO: add correct kwargs + built in unique_together; history_date is
-    #       somehow unique with model and id?
-    history_date = models.DateTimeField()
 
     class Meta:
-        # TODO: a track_id does not make sense -> we will never query for that
-        unique_together = ('object_pk', 'content_type', 'id', 'rank', )
+        abstract = True
+        # TODO: set dynamically
+        order_with_respect_to = 'Event'
 
-    # TODO:
-    def save(self, force_insert=False, force_update=False, using=None,
-             update_fields=None):
-        qs = ObjectHistory.objects.filter(id=self.id)
-        self.duplication = qs.count()
-        if self._state.adding:
-            self.duplication += 1
-        self.composed_pk = '{}-{}-{}'.format(
-            self.model.__name__, self.id, self.duplication,
-        )
-        super().save(force_insert, force_update, using, update_fields)
+    @property
+    def previous(self):
+        pk_name = self.__class__._meta.pk.name
+        # TODO: use F()-expressions here: F('event__track_date')
+        look_up = {
+            pk_name: self.pk, 'event__track_date__lte': self.event.track_date,
+        }
+        return self.__class__.objects.filter(**look_up).last()
 
-    # TODO: just to save idea
-    def query(self):
-        # TODO: inspect query behaviour!
+    @property
+    def next(self):
+        pk_name = self.__class__._meta.pk.name
+        # TODO: use F()-expressions here: F('event__track_date')
+        look_up = {
+            pk_name: self.pk, 'event__track_date__gte': self.event.track_date,
+        }
+        return self.__class__.objects.filter(**look_up).last()
 
-        last_create = TrackBase.objects.order_by('+track_date').filter(type='C').last()
-        TrackBase.objects.filter(track_date__gte=last_create)
+
+# TODO: use this for migrations and stuff like that
+# TODO: use in history.py -> bulk_create!
+class TrackModelRelation:
+    model = models.ForeignKey(
+        'contenttypes.ContentType',
+        on_delete=models.CASCADE,
+        related_name='track_model',
+    )
+    track_model = model.ForeignKey(
+        'contenttypes.ContentType',
+        on_delete=models.CASCADE,
+        related_name='track_model',
+        unique=True,
+    )
 
 
-        TrackBase.objects.annotate(
-            creation_date=models.Subquery(
-                TrackBase.objects.order_by(
-                    'track_date',
-                ).filter(
-                    type='C',
-                ).values('track_date')[:1]
-            ),
-        ).filter(
-            creation_date__gte=models.Max('creation_date'),
-        )

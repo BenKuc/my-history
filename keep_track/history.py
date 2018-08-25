@@ -1,7 +1,6 @@
 import itertools
 
 from django.conf import settings
-from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.db.models import signals as django_signals
 
@@ -70,11 +69,7 @@ class History:
 
         # wrappers around methods to connect to history
         setattr(cls, 'objects', ModelQuerySet.as_manager())
-        setattr(
-            cls, name, GenericRelation(
-                'keep_track.ObjectHistory', related_name=cls.__name__,
-            ),
-        )
+        # TODO: add descriptor? does it also functions as a manager on model?
 
     def create_history_model(self, sender, **kwargs):
         """

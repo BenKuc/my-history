@@ -35,3 +35,28 @@ class ModelQuerySet(models.QuerySet):
             update_kwargs=kwargs,
         )
         return res
+
+
+class L:
+    # TODO: these need to be added in manager
+    def all_events(self):
+        return self.events.all()
+
+    def updates(self):
+        return self.events.filter(type='U')
+
+    def creation(self):
+        return self.events.filter(type='C').first()
+
+    def deletion(self):
+        return self.events.filter(type='D').first()
+
+    def all_tracks(self):
+        events = self.events.select_related('after')
+        return events.values_list('after', flat=True)
+
+    def latest_track(self):
+        return self.events.select_related('after').last().after
+
+    def initial_track(self):
+        return self.events.select_related('after').first().after
