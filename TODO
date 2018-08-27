@@ -1,5 +1,6 @@
 A) project
     5) commands: set history on all existing rows
+    1) commands: delete history models by name or referenced model
 B) settings.py and docs
     3) history model naming scheme: when changing a new history-model is created
        and old one not tracked -> just choose initially? keep track in db of settings
@@ -12,6 +13,8 @@ C) Packaging
 D) apps.py
     1) configuration of name and verbose_name -> see C2
     2) import_models: create models there or in history
+    4) perform check with warning/error: use custom interface for specifying
+        whether to abort or to continue
 E) history.py
     1) implement methods
         1a) get_bases: how to handle multi-table-inheritance?
