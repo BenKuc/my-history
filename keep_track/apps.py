@@ -11,3 +11,8 @@ class HistoryConfig(AppConfig):
         # if this app is set as the last one in INSTALLED_APPS
         # all relevant models are loaded now
         super().import_models()
+
+    def ready(self):
+        # TODO: preform a check for warning: history models not tracked, but
+        #       recursively used
+        pass

@@ -3,7 +3,7 @@ from django.utils import timezone
 
 
 __all__ = [
-    'EventBase', 'TrackBase', 'TrackModelRelation',
+    'EventBase', 'TrackBase',
 ]
 
 
@@ -74,24 +74,3 @@ class TrackBase(models.Model):
             pk_name: self.pk, 'event__track_date__gte': self.event.track_date,
         }
         return self.__class__.objects.filter(**look_up).last()
-
-
-# TODO: use this for migrations and stuff like that
-# TODO: use in history.py -> bulk_create!
-class TrackModelRelation:
-    model = models.ForeignKey(
-        'contenttypes.ContentType',
-        on_delete=models.CASCADE,
-        related_name='track_model',
-    )
-    track_model = model.ForeignKey(
-        'contenttypes.ContentType',
-        on_delete=models.CASCADE,
-        related_name='track_model',
-        unique=True,
-    )
-
-    def __str__(self):
-        return 'Tracking of {} by {}'.format(
-            self.model.__name__, self.track_model.__name__,
-        )
